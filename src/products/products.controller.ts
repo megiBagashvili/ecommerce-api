@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, UseInterceptors, UploadedFile, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, UseInterceptors, UploadedFile, Get, Query, Param } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { S3Service } from './s3.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -7,6 +7,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
+import { SearchProductsDto } from './dto/search-products.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -31,7 +32,12 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() query: SearchProductsDto) {
+    return this.productsService.findAll(query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(id);
   }
 }

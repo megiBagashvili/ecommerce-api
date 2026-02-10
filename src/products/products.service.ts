@@ -2,20 +2,38 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from '../schemas/product.schema';
+import { SearchProductsDto } from './dto/search-products.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
 
   async create(productData: any, imageKey: string): Promise<Product> {
-    const newProduct = new this.productModel({
-      ...productData,
-      imageKey,
-    });
+    const newProduct = new this.productModel({ ...productData, imageKey });
     return newProduct.save();
   }
 
-  async findAll() {
-    return this.productModel.find().exec();
+  async findAll(query: SearchProductsDto): Promise<Product[]> {
+    const { keyword, minPrice, maxPrice } = query;
+    const filters: any = {};
+
+    if (keyword) {
+      filters.$or = [
+        { name: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } },
+      ];
+    }
+
+    if (minPrice || maxPrice) {
+      filters.price = {};
+      if (minPrice) filters.price.$gte = Number(minPrice);
+      if (maxPrice) filters.price.$lte = Number(maxPrice);
+    }
+
+    return this.productModel.find(filters).exec();
+  }
+
+  async findOne(id: string): Promise<Product | null> {
+    return this.productModel.findById(id).exec();
   }
 }
