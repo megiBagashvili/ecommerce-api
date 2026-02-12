@@ -5,6 +5,7 @@ import { Order } from '../schemas/order.schema';
 import { Cart } from '../schemas/cart.schema';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class OrdersService {
@@ -14,6 +15,7 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     private configService: ConfigService,
+    private mailService: MailService,
   ) {
     this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY') as string, {
       apiVersion: '2025-01-27.acacia' as any,
@@ -83,10 +85,16 @@ export class OrdersService {
       { $or: [{ sessionId: sessionOrPaymentId }, { paymentIntentId: sessionOrPaymentId }] },
       { status: 'paid' },
       { new: true }
-    );
+    ).populate('userId');
 
     if (order) {
       await this.cartModel.deleteOne({ userId: order.userId });
+      const userEmail = (order.userId as any).email;
+      await this.mailService.sendOrderConfirmation(
+        userEmail,
+        order._id.toString(),
+        order.totalAmount
+      );
     }
     return order;
   }
