@@ -7,6 +7,7 @@ export class Order extends Document {
   @Prop() items: any[];
   @Prop({ required: true }) totalAmount: number;
   @Prop({ default: 'pending' }) status: 'pending' | 'paid' | 'shipped';
+  @Prop() sessionId: string;
   @Prop() paymentIntentId: string;
 }
 export const OrderSchema = SchemaFactory.createForClass(Order);
