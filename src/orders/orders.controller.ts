@@ -66,11 +66,9 @@ export class OrdersController {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      // mark order paid by session ID (preferred for Checkout Sessions)
       await this.ordersService.markOrderAsPaid(session.id);
     } else if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      // fallback for flows that only deliver payment_intent events
       await this.ordersService.markOrderAsPaid(paymentIntent.id);
     }
 

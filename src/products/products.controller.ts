@@ -15,7 +15,7 @@ export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
     private readonly s3Service: S3Service,
-  ) {}
+  ) { }
 
   @Post()
   @ApiBearerAuth()

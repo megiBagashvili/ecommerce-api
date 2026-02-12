@@ -37,6 +37,6 @@ export class S3Service {
     });
 
     await this.s3Client.send(command);
-    return key; 
+    return key;
   }
 }
