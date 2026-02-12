@@ -6,7 +6,9 @@ import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
+import { MailModule } from './mail/mail.module';
 import * as Joi from 'joi';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -28,6 +30,17 @@ import * as Joi from 'joi';
     ProductsModule,
     CartModule,
     OrdersModule,
+    MailModule,
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST,
+        port: 587,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      },
+    }),
   ],
 })
 export class AppModule {}
