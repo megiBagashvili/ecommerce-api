@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { MailService } from 'src/mail/mail.service';
 
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -60,6 +61,23 @@ export class AuthService {
     }
     if (!user.isVerified) {
       throw new UnauthorizedException('Please verify your email first');
+    }
+
+    const payload = { email: user.email, sub: user._id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async loginGoogleUser(googleUser: any) {
+    let user = await this.usersService.findByEmail(googleUser.email);
+
+    if (!user) {
+      user = await this.usersService.create({
+        email: googleUser.email,
+        password: Math.random().toString(36).slice(-10),
+        isVerified: true,
+      });
     }
 
     const payload = { email: user.email, sub: user._id, role: user.role };

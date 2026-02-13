@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -14,6 +15,18 @@ export class AuthController {
     private usersService: UsersService,
     private authService: AuthService,
   ) { }
+
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) { }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req) {
+    return this.authService.loginGoogleUser(req.user);
+  }
+
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
