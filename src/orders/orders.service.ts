@@ -61,6 +61,7 @@ export class OrdersService {
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
+    await this.orderModel.deleteMany({ userId, status: 'pending' });
 
     const order = new this.orderModel({
       userId,

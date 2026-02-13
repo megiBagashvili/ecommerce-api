@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class S3Service {
@@ -38,5 +39,13 @@ export class S3Service {
 
     await this.s3Client.send(command);
     return key;
+  }
+
+  async deleteFile(key: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    await this.s3Client.send(command);
   }
 }
